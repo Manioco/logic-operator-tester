@@ -3,24 +3,23 @@ import csv
 import os
 import pandas as pd
 
-
 def generate_logical_exercise():
     operators = ['and', 'or', 'not', 'nand', 'nor', 'xor',
-                 'implies', 'equivalent']  # Operadores lógicos
-    operands = [True, False]  # Operandos
+                 'implies', 'equivalent']  # Logical operators
+    operands = [True, False]  # Operands
 
-    # Escolha aleatória do operador e dos operandos
+    # Randomly choose operator and operands
     operator = random.choice(operators)
     operand1 = random.choice(operands)
     operand2 = random.choice(operands)
 
-    # Geração da expressão
+    # Generate expression
     if operator == 'not':
         expression = f"{operator} {operand1}"
     else:
         expression = f"({operand1} {operator} {operand2})"
 
-    # Cálculo do resultado
+    # Calculate the result
     if operator == 'and':
         result = operand1 and operand2
     elif operator == 'or':
@@ -38,8 +37,8 @@ def generate_logical_exercise():
     elif operator == 'equivalent':
         result = operand1 == operand2
 
-    # Formatação do exercício
-    exercise = f"Qual o resultado da expressão: {expression}?"
+    # Exercise formatting
+    exercise = f"What is the result of the expression: {expression}?"
 
     return operand1, operator, operand2, result, exercise
 
@@ -60,25 +59,24 @@ def load_from_csv(filename):
     exercises = []
     with open(filename, 'r') as csvfile:
         reader = csv.reader(csvfile)
-        next(reader, None)  # Pular cabeçalho
+        next(reader, None)  # Skip header
         for row in reader:
             if len(row) >= 7:
                 index = int(row[0])
-                rodada = int(row[1])
+                round_num = int(row[1])
                 operand1 = bool(row[2])
                 operator = row[3]
                 operand2 = bool(row[4])
                 result = bool(row[5])
                 user_result = bool(row[6])
-                exercises.append(
-                    (index, rodada, operand1, operator, operand2, result, user_result))
+                exercises.append((index, round_num, operand1, operator, operand2, result, user_result))
     return exercises
 
 
 def calculate_metrics(exercises):
     total_exercises = len(exercises)
     if total_exercises == 0:
-        print("Não há exercícios para calcular as métricas.")
+        print("There are no exercises to calculate metrics.")
         return
 
     total_correct = 0
@@ -123,76 +121,70 @@ def calculate_metrics(exercises):
 filename = 'exercises.csv'
 exercises = load_from_csv(filename)
 
-# Obter o último índice e a última rodada
+# Get the last index and round number
 if len(exercises) > 0:
     last_index = exercises[-1][0]
-    last_rodada = exercises[-1][1]
-    print(last_index)
-    print(last_rodada)
+    last_round = exercises[-1][1]
+    # print(last_index)
+    # print(last_round)
 else:
     last_index = -1
-    last_rodada = 0
+    last_round = 0
 
-# Incrementar o índice e a rodada
+# Increment the index and round number
 index = last_index + 1
-rodada = last_rodada + 1
+round_num = last_round + 1
 
-
-# Gerar 5 exercícios
+# Generate 5 exercises
 new_exercises = []
 for i in range(2):
     operand1, operator, operand2, result, exercise = generate_logical_exercise()
-    new_exercises.append((index, rodada, operand1, operator,
-                         operand2, result, None, exercise))
-    exercises.append((index, rodada, operand1, operator,
-                     operand2, result, None, exercise))
+    new_exercises.append((index, round_num, operand1, operator, operand2, result, None, exercise))
+    exercises.append((index, round_num, operand1, operator, operand2, result, None, exercise))
     index += 1
     print(exercise)
 
-    # Ler a resposta do usuário
-    user_result = input("Resposta (0 para False, 1 para True): ")
+    # Read user response
+    user_result = input("Answer (0 for False, 1 for True): ")
 
     if user_result == "0":
         user_result = False
     else:
         user_result = True
 
-    # Armazenar a resposta do usuário
-    new_exercises[-1] = new_exercises[-1][:6] + \
-        (user_result,)  # + new_exercises[-1][7:]
+    # Store user response
+    new_exercises[-1] = new_exercises[-1][:6] + (user_result,)
 
-    # Verificar se a resposta está correta
+    # Check if the response is correct
     if result == user_result:
-        print("Resposta correta!")
+        print("Correct answer!")
     else:
-        print("Resposta incorreta!")
+        print("Incorrect answer!")
     print()
 
-# Salvar os novos exercícios no arquivo CSV
+# Save new exercises to the CSV file
 save_to_csv(new_exercises, filename)
 
-# Calcular as métricas
+# Calculate metrics
 metrics = calculate_metrics(exercises)
 
-# Exibir as métricas
-print("Métricas:")
-print(f"Média de acertos na execução atual: {metrics['accuracy']*100:.2f}%")
-print(f"Média de erros na execução atual: {metrics['error']*100:.2f}%")
+# Display metrics
+print("Metrics:")
+print(f"Average accuracy in the current run: {metrics['accuracy']*100:.2f}%")
+print(f"Average errors in the current run: {metrics['error']*100:.2f}%")
 
 if metrics["total_exercises"] > 0:
-    print(
-        f"Porcentagem de acertos na execução atual: {metrics['accuracy']*100:.2f}%")
-    print(
-        f"Porcentagem de erros na execução atual: {metrics['error']*100:.2f}%")
+    print(f"Percentage of correct answers in the current run: {metrics['accuracy']*100:.2f}%")
+    print(f"Percentage of errors in the current run: {metrics['error']*100:.2f}%")
     print()
-    print("Métricas por operador:")
+    print("Metrics by operator:")
     for operator, accuracy_count in metrics["accuracy_by_operator"].items():
         error_count = metrics["error_by_operator"].get(operator, 0)
         total_count = accuracy_count + error_count
         accuracy_percentage = accuracy_count / total_count * 100
         error_percentage = error_count / total_count * 100
-        print(f"Operador {operator}:")
-        print(f"   Porcentagem de acertos: {accuracy_percentage:.2f}%")
-        print(f"   Porcentagem de erros: {error_percentage:.2f}%")
+        print(f"Operator {operator}:")
+        print(f"   Accuracy percentage: {accuracy_percentage:.2f}%")
+        print(f"   Error percentage: {error_percentage:.2f}%")
 else:
-    print("Não há exercícios para calcular as métricas.")
+    print("There are no exercises to calculate metrics.")
