@@ -1,9 +1,9 @@
 import random
 import csv
 import os
-import pandas as pd
 
-def generate_logical_exercise():
+
+def generate_logical_exercise(index):
     operators = ['and', 'or', 'not', 'nand', 'nor', 'xor',
                  'implies', 'equivalent']  # Logical operators
     operands = [True, False]  # Operands
@@ -38,7 +38,7 @@ def generate_logical_exercise():
         result = operand1 == operand2
 
     # Exercise formatting
-    exercise = f"What is the result of the expression: {expression}?"
+    exercise = f"{index+1}) What is the result of the expression: {expression}?"
 
     return operand1, operator, operand2, result, exercise
 
@@ -135,17 +135,26 @@ else:
 index = last_index + 1
 round_num = last_round + 1
 
-# Generate 5 exercises
+# Generate X exercises
+print("How many exercises do you want to generate?")
+while (x:= input("Enter a number: ")).isnumeric() == False:
+    print("Please enter a number.")
+    continue
+
+print("\n\n\n")
+
 new_exercises = []
-for i in range(2):
-    operand1, operator, operand2, result, exercise = generate_logical_exercise()
+for i in range(int(x)):
+    operand1, operator, operand2, result, exercise = generate_logical_exercise(i)
     new_exercises.append((index, round_num, operand1, operator, operand2, result, None, exercise))
     exercises.append((index, round_num, operand1, operator, operand2, result, None, exercise))
     index += 1
+    print("\n")
     print(exercise)
 
     # Read user response
     user_result = input("Answer (0 for False, 1 for True): ")
+    print("\n")
 
     if user_result == "0":
         user_result = False
@@ -162,8 +171,8 @@ for i in range(2):
         print("Incorrect answer!")
     print()
 
-# Save new exercises to the CSV file
-save_to_csv(new_exercises, filename)
+    # Save new exercises to the CSV file
+    save_to_csv(new_exercises, filename)
 
 # Calculate metrics
 metrics = calculate_metrics(exercises)
